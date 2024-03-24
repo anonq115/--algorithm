@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Animated Ocean Waves</title>
+<style>
+    body {
+        margin: 0;
+        overflow: hidden;
+    }
+
+    canvas {
+        display: block;
+    }
+</style>
+</head>
+<body>
+<canvas id="canvas"></canvas>
+<script>
+    const canvas = document.getElementById('canvas');
+    const context = canvas.getContext('2d');
+
+    if (!canvas || !context) {
+        console.error("Canvas element not found.");
+    } else {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        const audioContext = new AudioContext();
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+
+        oscillator.type = 'sine';
+        oscillator.frequency.value = 0.1; // Adjust the frequency for different wave speeds
+        gainNode.gain.value = 0.1; // Adjust the amplitude for wave height
+
+        oscillator.start(0);
+
+        function drawWave() {
+            const y = (Math.sin(performance.now() * 0.001) + 1) * canvas.height / 2;
+
+            context.clearRect(0, 0, canvas.width, canvas.height);
+            context.beginPath();
+            context.moveTo(0, y);
+
+            for (let x = 0; x < canvas.width; x++) {
+                const waveHeight = (Math.sin(x * 0.01 + performance.now() * 0.002) + 1) * 20; // Adjust the wave height and speed
+                const waveY = y + waveHeight * Math.sin(x * 0.1);
+
+                context.lineTo(x, waveY);
+            }
+
+            context.lineTo(canvas.width, canvas.height);
+            context.lineTo(0, canvas.height);
+            context.closePath();
+            context.fillStyle = 'rgba(0, 128, 255, 0.5)';
+            context.fill();
+
+            requestAnimationFrame(drawWave);
+        }
+
+        drawWave();
+    }
+</script>
+</body>
+</html>
